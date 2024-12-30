@@ -1,0 +1,26 @@
+# Python virtual environments
+myenv/
+env/
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs and database
+*.log
+*.sqlite3
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
