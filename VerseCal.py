@@ -1,46 +1,71 @@
+# VerseCal.py
 import sys
 import threading
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui
+
+# Import from our modules package
 from modules.clipboard_monitor import ClipboardMonitor
+from modules.notifier import display_notification
+
+class AppBridge(QtCore.QObject):
+    """
+    A helper class that defines a PyQt signal for new coordinates.
+    We'll emit this signal from the background thread, and the main
+    thread will show the popup.
+    """
+    newCoordinates = QtCore.pyqtSignal(str)
 
 class SystemTrayApp(QtWidgets.QSystemTrayIcon):
     """
-    Creates a system tray icon with a context menu.
-    When 'Exit' is clicked, we stop the ClipboardMonitor and quit.
+    System tray icon with a right-click menu to exit the app.
     """
 
-    def __init__(self, icon, monitor, parent=None):
+    def __init__(self, icon, monitor, bridge, parent=None):
         super().__init__(icon, parent)
         self.monitor = monitor
+        self.bridge = bridge
 
-        # Create the tray icon menu
+        # Build the tray menu
         menu = QtWidgets.QMenu(parent)
         exit_action = menu.addAction("Exit")
         exit_action.triggered.connect(self.exit_app)
-
         self.setContextMenu(menu)
+
         self.setToolTip("Clipboard Monitor (Coordinates)")
 
     def exit_app(self):
-        """Stop the monitor and quit the application."""
-        self.monitor.stop()           # Signal the monitor thread to stop
-        QtWidgets.QApplication.quit()  # Quit the Qt event loop
+        """Stop the monitor thread and quit the application."""
+        self.monitor.stop()
+        QtWidgets.QApplication.quit()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
-    # 1) Create the clipboard monitor
+    # Create the AppBridge instance
+    bridge = AppBridge()
+
+    # Connect the signal to the display_notification slot
+    bridge.newCoordinates.connect(display_notification)
+
+    # Create the ClipboardMonitor
     monitor = ClipboardMonitor(log_file="coordinates.txt")
 
-    # 2) Run it in a background thread
+    # Define what happens when the monitor finds a new item
+    def on_new_item(coords_text):
+        # Emit the signal so that the main Qt thread handles the popup
+        bridge.newCoordinates.emit(coords_text)
+
+    monitor.on_new_item = on_new_item
+
+    # Start monitor in background thread
     monitor_thread = threading.Thread(target=monitor.run, daemon=True)
     monitor_thread.start()
 
-    # 3) Create the system tray icon
-    tray_icon = SystemTrayApp(QtGui.QIcon("assets/icon.ico"), monitor)
+    # Create system tray icon (use your .ico file from assets)
+    tray_icon = SystemTrayApp(QtGui.QIcon("assets/icon.ico"), monitor, bridge)
     tray_icon.show()
 
-    # 4) Run the application event loop
+    # Run the application event loop
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
