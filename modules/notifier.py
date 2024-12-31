@@ -22,14 +22,15 @@ class NotificationWindow(QWidget):
         # Label setup
         self.label = QLabel(message)
         self.label.setStyleSheet(
-            "color: white; "
-            "background-color: rgba(0, 0, 0, 128); "  # Semi-transparent black background
+            "color: rgba(255, 255, 255, 220); "
+            "background-color: rgba(0, 0, 0, 170); "  # Semi-transparent black background
             "border: 1px solid rgba(255, 255, 255, 128); "  # 1px white border with 50% opacity
-            "font-size: 14px; "
-            "padding: 8px;"
+            "font-size: 16px; "
+            "padding: 12px;"  # Increased padding to 12px for better spacing
         )
         self.label.setWordWrap(True)  # Enable text wrapping
-        self.label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)  # Align text to the left and center vertically
+        self.label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)  # Align text to the right and center vertically
+        self.label.setTextFormat(Qt.RichText)  # Ensure QLabel interprets the text as rich text
 
         layout.addWidget(self.label)
         self.setLayout(layout)
@@ -41,7 +42,7 @@ class NotificationWindow(QWidget):
         else:
             screen_geometry = QApplication.desktop().availableGeometry()
 
-        window_width = 300
+        window_width = 320
         window_height = 60  # Initial height; will adjust based on content
 
         # Calculate x and y for top-right corner with 20px gap
@@ -65,13 +66,13 @@ class NotificationWindow(QWidget):
         """
         # Calculate the height required for the label's content
         self.label.adjustSize()
-        required_height = self.label.sizeHint().height() + 16  # 8px padding top and bottom
+        required_height = self.label.sizeHint().height() + 24  # 12px padding top and bottom
 
         # Set a maximum height to prevent the window from becoming too tall
-        max_height = 200
+        max_height = 420
         if required_height > max_height:
             required_height = max_height
-            self.label.setFixedHeight(max_height - 16)  # Adjust label height accordingly
+            self.label.setFixedHeight(max_height - 24)  # Adjust label height accordingly
 
         # Update window height while keeping x and y positions fixed
         current_geometry = self.geometry()
@@ -82,12 +83,12 @@ class NotificationWindow(QWidget):
         self.close()
 
 
-def display_notification(message):
+def display_notification(message, corrected_time_ms):
     """
     Call this function from the main Qt thread.
     It creates a NotificationWindow and shows it.
     """
-    print("[DEBUG] display_notification called with:", message)
+    print("[DEBUG] display_notification called.")
     app = QApplication.instance()
     if not app:
         print("No QApplication instance found!")

@@ -104,16 +104,16 @@ class ClipboardMonitor:
                 and clipboard_text != self.previous_text
                 and COORDINATES_PATTERN.match(clipboard_text)
             ):
-                corrected_time_ms = int((now + self.offset) * 1000)
+                corrected_time_ms = (now + self.offset) * 1000.0  # Float milliseconds
 
                 with open(self.log_file, "a", encoding="utf-8") as f:
-                    f.write(f"{corrected_time_ms} {clipboard_text}\n")
+                    f.write(f"{corrected_time_ms:.3f} {clipboard_text}\n")
 
                 self.previous_text = clipboard_text
 
                 # Invoke our callback (main thread will do the popup)
                 if self.on_new_item:
-                    self.on_new_item(clipboard_text)
+                    self.on_new_item(clipboard_text, corrected_time_ms)
 
             time.sleep(1)
 

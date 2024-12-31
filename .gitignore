@@ -15,6 +15,7 @@ dist/
 # Logs and database
 *.log
 *.sqlite3
+coordinates.txt
 
 # IDEs and editors
 .vscode/
@@ -24,3 +25,4 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+
