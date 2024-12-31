@@ -41,6 +41,9 @@ class SystemTrayApp(QtWidgets.QSystemTrayIcon):
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
+    # Prevent the application from quitting when the last window is closed
+    app.setQuitOnLastWindowClosed(False)
+
     # Create the AppBridge instance
     bridge = AppBridge()
 
@@ -52,7 +55,7 @@ def main():
 
     # Define what happens when the monitor finds a new item
     def on_new_item(coords_text):
-        # Emit the signal so that the main Qt thread handles the popup
+        print(f"[DEBUG] New coordinates detected: {coords_text}")
         bridge.newCoordinates.emit(coords_text)
 
     monitor.on_new_item = on_new_item
@@ -64,6 +67,9 @@ def main():
     # Create system tray icon (use your .ico file from assets)
     tray_icon = SystemTrayApp(QtGui.QIcon("assets/icon.ico"), monitor, bridge)
     tray_icon.show()
+
+    # Keep a reference to the tray icon to prevent garbage collection
+    app.tray_icon = tray_icon
 
     # Run the application event loop
     sys.exit(app.exec_())

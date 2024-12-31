@@ -10,13 +10,13 @@ class NotificationWindow(QWidget):
         # Frameless + Always-on-top
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         # Semi-transparent
-        self.setWindowOpacity(0.5)
+        self.setWindowOpacity(0.87)
 
         layout = QVBoxLayout()
         self.label = QLabel(message)
         self.label.setStyleSheet(
             "color: white; "
-            "background-color: rgba(0, 0, 0, 128); "  # black bg w/ alpha
+            "background-color: rgba(0, 0, 0, 128); "  # Black background with 50% opacity
             "font-size: 14px; "
             "padding: 8px;"
         )
